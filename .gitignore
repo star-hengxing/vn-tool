@@ -1,0 +1,11 @@
+.vs/
+.vscode/
+.xmake/
+.cache/
+vsxmake*/
+
+# build
+build/
+
+# test
+*.arc
