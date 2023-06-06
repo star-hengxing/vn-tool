@@ -1,14 +1,27 @@
-#include <platform/process_manager.hpp>
+#include <string_view>
+
 #include <platform/os.hpp>
-#include "Program.hpp"
+#include "tool.hpp"
 
-int main()
+int main(int argc, char** argv)
 {
-    process_manager process_m;
+    std::string_view config_file = "vn-tool.toml";
+    if (argc >= 2)
+    {
+        config_file = argv[1];
+    }
 
+    fixed_buffer<Program> programs = ::read(config_file);
+    auto const size = programs.size;
+    if (size == 0)
+    {
+        return -1;
+    }
+
+    auto const view = unsafe::buffer_view<Program>{programs.data.get(), size};
     while (true)
     {
-        process_m.get_process_list();
+        handle(view);
         os::sleep(1000);
     }
 }

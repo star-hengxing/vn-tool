@@ -3,3 +3,4 @@ target("launcher")
     add_files("*.cpp")
 
     add_deps("platform")
+    add_packages("toml++")

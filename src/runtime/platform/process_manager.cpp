@@ -7,7 +7,9 @@
 void process_manager::get_process_list() noexcept
 {
     DWORD cbNeeded;
-    id_size = (::EnumProcesses(id_list, sizeof(id_list), &cbNeeded) == 0) ? 0 : cbNeeded / sizeof(DWORD);
+    id_size = (::EnumProcesses(id_list, sizeof(id_list), &cbNeeded) == 0)
+        ? 0
+        : cbNeeded / sizeof(DWORD);
 }
 
 bool process_manager::contain(usize target_id) const noexcept
