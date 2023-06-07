@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <string_view>
 
@@ -14,7 +15,7 @@ fixed_buffer<Program> read(const std::string_view filename) noexcept
     {
         auto const file = fast_io::native_file_loader{filename};
         toml::table toml = toml::parse({file.data(), file.size()});
-        toml::array* arr = toml["programs"].as_array();
+        toml::array* arr = toml.get_as<toml::array>("programs");
         if (arr)
         {
             auto const size = arr->size();
@@ -27,7 +28,7 @@ fixed_buffer<Program> read(const std::string_view filename) noexcept
                 auto const node = toml["programs"][i];
                 std::optional<std::string_view> path = node["path"].value<std::string_view>();
 
-                cur.path = string2wstring(path.value());
+                cur.path = ::string2wstring(path.value());
                 cur.start_count = node["start_count"].value<usize>().value();
                 cur.run_times = node["run_times"].value<usize>().value();
             }
@@ -56,5 +57,30 @@ fixed_buffer<Program> read(const std::string_view filename) noexcept
     return {nullptr, 0};
 }
 
-void save(const std::string_view filename, unsafe::buffer_view<Program> programs) noexcept
-{}
+void write(const std::string_view filename, const unsafe::buffer_view<Program> programs) noexcept
+{
+    if (programs.empty())
+        return;
+
+    auto toml = toml::table{{"programs", toml::array{}}};
+    auto vec = toml.find("programs")->second.as_array();
+
+    vec->reserve(programs.size());
+    for (auto proc : programs)
+    {
+        toml::table cur;
+        cur.emplace<std::string>("path", ::wstring2string(proc.path));
+        cur.emplace("start_count", static_cast<isize>(proc.start_count));
+        auto run_times = static_cast<isize>(proc.run_times);
+        if (proc.elapsed != 0)
+        {
+            run_times += proc.elapsed;
+        }
+        cur.emplace("run_times", run_times);
+
+        vec->push_back(std::move(cur));
+    }
+
+    auto out = std::ofstream{filename.data()};
+    out << toml;
+}

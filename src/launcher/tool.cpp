@@ -59,16 +59,38 @@ void handle(unsafe::buffer_view<Program> programs) noexcept
     }
 }
 
-std::wstring string2wstring(std::string_view str) noexcept
+std::wstring string2wstring(const std::string_view str) noexcept
 {
-    auto const size = ::MultiByteToWideChar(CP_ACP, 0, str.data(), str.size(), nullptr, 0);
+    if (str.empty())
+        return {};
+
+    auto const size = ::MultiByteToWideChar(CP_ACP, 0, str.data(), static_cast<int>(str.size()), nullptr, 0);
     if (size == 0)
     {
         return {};
     }
 
     auto ret = std::wstring(size, 0);
-    if (::MultiByteToWideChar(CP_ACP, 0, str.data(), str.size(), ret.data(), size) == 0)
+    if (::MultiByteToWideChar(CP_ACP, 0, str.data(), static_cast<int>(str.size()), ret.data(), size) == 0)
+    {
+        return {};
+    }
+    return ret;
+}
+
+std::string wstring2string(const std::wstring_view str) noexcept
+{
+    if (str.empty())
+        return {};
+
+    auto const size = ::WideCharToMultiByte(CP_ACP, 0, str.data(), static_cast<int>(str.size()), nullptr, 0, nullptr, nullptr);
+    if (size == 0)
+    {
+        return {};
+    }
+
+    auto ret = std::string(size, 0);
+    if (::WideCharToMultiByte(CP_ACP, 0, str.data(), static_cast<int>(str.size()), ret.data(), size, nullptr, nullptr) == 0)
     {
         return {};
     }
