@@ -19,7 +19,7 @@ void handle(unsafe::buffer_view<Program> programs) noexcept
 
     for (auto& proc : programs)
     {
-        if (proc.path.empty()) [[unlikely]]
+        if (proc.is_empty()) [[unlikely]]
             continue;
 
         if (proc.is_run())

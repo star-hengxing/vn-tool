@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <filesystem>
 #include <string>
 #include <string_view>
 
@@ -29,6 +30,7 @@ fixed_buffer<Program> read(const std::string_view filename) noexcept
                 std::optional<std::string_view> path = node["path"].value<std::string_view>();
 
                 cur.path = ::string2wstring(path.value());
+                cur.is_valid_path = std::filesystem::exists(cur.path);
                 cur.start_count = node["start_count"].value<usize>().value();
                 cur.run_times = node["run_times"].value<usize>().value();
             }
@@ -69,7 +71,8 @@ void write(const std::string_view filename, const unsafe::buffer_view<Program> p
     for (auto proc : programs)
     {
         toml::table cur;
-        cur.emplace<std::string>("path", ::wstring2string(proc.path));
+        cur.emplace("path", ::wstring2string(proc.path));
+        cur.emplace("is_valid_path", proc.is_valid_path);
         cur.emplace("start_count", static_cast<isize>(proc.start_count));
         auto run_times = static_cast<isize>(proc.run_times);
         if (proc.elapsed != 0)
