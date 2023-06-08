@@ -27,10 +27,11 @@ fixed_buffer<Program> read(const std::string_view filename) noexcept
             {
                 auto& cur = data[i];
                 auto const node = toml["programs"][i];
-                std::optional<std::string_view> path = node["path"].value<std::string_view>();
+                std::optional<std::string_view> path_view = node["path"].value<std::string_view>();
 
-                cur.path = ::string2wstring(path.value());
-                cur.is_valid_path = std::filesystem::exists(cur.path);
+                auto const path = std::filesystem::path{path_view.value()}.make_preferred();
+                cur.path = ::string2wstring(path.string());
+                cur.is_valid_path = std::filesystem::exists(path);
                 cur.start_count = node["start_count"].value<usize>().value();
                 cur.run_times = node["run_times"].value<usize>().value();
             }

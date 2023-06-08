@@ -16,8 +16,8 @@ void sigint_callback(int signum) noexcept
 
 int main(int argc, char** argv)
 {
-    signal(SIGINT, sigint_callback);
-    signal(SIGTERM, sigint_callback);
+    std::signal(SIGINT, sigint_callback);
+    std::signal(SIGTERM, sigint_callback);
 
     if (argc >= 2)
     {
