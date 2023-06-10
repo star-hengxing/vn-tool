@@ -12,6 +12,7 @@ set_languages("c++20")
 add_rules("mode.debug", "mode.release")
 
 if is_mode("debug") then
+    add_rules("debug.asan")
     set_policy("build.warning", true)
     add_requireconfs("*", {configs = {shared = true}})
 end
