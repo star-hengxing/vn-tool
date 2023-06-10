@@ -73,7 +73,7 @@ void write(const std::string_view filename, const unsafe::buffer_view<Program> p
     {
         toml::table cur;
         cur.emplace("path", ::wstring2string(proc.path));
-        cur.emplace("is_valid_path", proc.is_valid_path);
+        // cur.emplace("is_valid_path", proc.is_valid_path);
         cur.emplace("start_count", static_cast<isize>(proc.start_count));
         auto run_times = static_cast<isize>(proc.run_times);
         if (proc.elapsed != 0)

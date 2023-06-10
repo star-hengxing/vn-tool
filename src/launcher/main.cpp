@@ -6,7 +6,10 @@
 
 static fixed_buffer<Program> programs;
 static std::string_view config_file = "vn-tool.toml";
+// ms
 static auto constexpr SLEEP_TIME = 1000;
+// s
+static auto constexpr SAVE_TIME = 60;
 
 void sigint_callback(int signum) noexcept
 {
@@ -30,9 +33,21 @@ int main(int argc, char** argv)
         return -1;
     }
 
+    u8 seconds = 0;
+    auto view = unsafe::buffer_view{programs.data.get(), programs.size};
     while (true)
     {
-        ::handle({programs.data.get(), programs.size});
+        ::handle(view);
+        if (seconds == SAVE_TIME)
+        {
+            seconds = 0;
+            ::write(config_file, view);
+        }
+        else
+        {
+            seconds += 1;
+        }
+
         os::sleep(SLEEP_TIME);
     }
 }
