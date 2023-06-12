@@ -1,9 +1,4 @@
-target("format")
-    add_rules("module.component")
-    add_files("format/**.cpp")
-
-    add_deps("resource")
-    add_packages("fast_io")
+includes("engine")
 
 target("platform")
     add_rules("module.component")
