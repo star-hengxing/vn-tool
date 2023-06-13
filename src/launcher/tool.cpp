@@ -7,6 +7,8 @@
 #include <platform/process_manager.hpp>
 #include "tool.hpp"
 
+namespace fs = std::filesystem;
+
 static process_manager process_m;
 
 void handle(unsafe::buffer_view<Program> programs) noexcept
@@ -38,7 +40,7 @@ void handle(unsafe::buffer_view<Program> programs) noexcept
         }
         else
         {
-            auto const target = std::filesystem::path{proc.path};
+            auto const target = fs::path{proc.path};
             auto const list = unsafe::buffer_view{process_m.id_list, process_m.id_size};
             for (auto const pid : list)
             {
@@ -48,7 +50,7 @@ void handle(unsafe::buffer_view<Program> programs) noexcept
                 }
 
                 auto const src = process_m.get_process_filename(pid);
-                if (!src.empty() && std::filesystem::equivalent(src, target))
+                if (!src.empty() && fs::equivalent(src, target))
                 {
                     proc.pid = pid;
                     proc.start_count += 1;

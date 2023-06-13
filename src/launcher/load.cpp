@@ -1,14 +1,16 @@
 #include <iostream>
 #include <fstream>
-#include <filesystem>
 #include <string>
 #include <string_view>
+#include <filesystem>
 
 #include <fast_io.h>
 #include <toml++/toml.h>
 
 #include <base/range.hpp>
 #include "tool.hpp"
+
+namespace fs = std::filesystem;
 
 fixed_buffer<Program> read(const std::string_view filename) noexcept
 {
@@ -29,9 +31,9 @@ fixed_buffer<Program> read(const std::string_view filename) noexcept
                 auto const node = toml["programs"][i];
                 std::optional<std::string_view> path_view = node["path"].value<std::string_view>();
 
-                auto const path = std::filesystem::path{path_view.value()}.make_preferred();
+                auto const path = fs::path{path_view.value()}.make_preferred();
                 cur.path = ::string2wstring(path.string());
-                cur.is_valid_path = std::filesystem::exists(path);
+                cur.is_valid_path = fs::exists(path);
                 cur.start_count = node["start_count"].value<usize>().value();
                 cur.run_times = node["run_times"].value<usize>().value();
             }
