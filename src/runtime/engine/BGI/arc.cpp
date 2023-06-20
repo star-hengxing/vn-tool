@@ -6,13 +6,13 @@
 
 NAMESPACE_BEGIN(BGI)
 
-bool File::is_arc(const Header* header) noexcept
+bool File::is_arc(const Header& header) noexcept
 {
-    auto const magic = std::string_view{reinterpret_cast<const char*>(header->magic), std::size(header->magic)};
+    auto const magic = std::string_view{reinterpret_cast<const char*>(header.magic), std::size(header.magic)};
     return magic == magic::arc;
 }
 
-File File::read(std::string_view filename)
+File File::read(const std::string_view filename)
 {
     fast_io::native_file_loader file;
     try
@@ -30,7 +30,7 @@ File File::read(std::string_view filename)
         return {};
 
     auto const header = reinterpret_cast<const Header*>(file.data());
-    if (!File::is_arc(header))
+    if (!File::is_arc(*header))
         return {};
 
     File arc;
@@ -60,7 +60,7 @@ File File::read(std::string_view filename)
 
 Data File::find(usize entry_id) const noexcept
 {
-    if (entry_id >= entry_size) [[unlikely]]
+    if (entry_id >= entry_size || data.empty()) [[unlikely]]
         return {};
 
     auto ptr = data.data() + sizeof(Header);

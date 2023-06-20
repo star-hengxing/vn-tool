@@ -4,7 +4,7 @@
 
 NAMESPACE_BEGIN(BGI)
 
-// Compressed image, rgb(jpeg) + alpha
+// Compressed image, v1: huffman tree rgb[a] v2: rgb(jpeg) + alpha
 struct Image_1
 {
 public:
@@ -24,7 +24,7 @@ public:
     u16 version;
 
 public:
-    static bool is_valid(const Image_1* image) noexcept;
+    static bool is_valid(const Image_1& image_1) noexcept;
 };
 
 static_assert(sizeof(Image_1) == 48);

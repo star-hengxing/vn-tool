@@ -32,7 +32,7 @@ rule("module.component")
         elseif is_mode("release") then
             target:set("kind", "static")
         else
-            assert(false, "Unknown build kind")
+            raise("Unknown build kind")
         end
     end)
 

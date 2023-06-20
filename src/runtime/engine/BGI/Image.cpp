@@ -344,18 +344,19 @@ NAMESPACE_END()
 
 NAMESPACE_BEGIN(BGI)
 
-bool Image_1::is_valid(const Image_1* image) noexcept
+bool Image_1::is_valid(const Image_1& image_1) noexcept
 {
     // end with '\0'
-    auto const magic = std::string_view{reinterpret_cast<const char*>(image->magic), magic::image_1.size()};
+    auto const magic = std::string_view{reinterpret_cast<const char*>(image_1.magic), magic::image_1.size()};
     return magic == magic::image_1;
 }
 
-Owned<u8> File::read(const Image_1* image, usize size) const noexcept
+Owned<u8> File::read(const Image_1& image_1, usize size) const noexcept
 {
-    if (!Image_1::is_valid(image))
+    if (!Image_1::is_valid(image_1))
         return {};
 
+    auto const image = std::addressof(image_1);
     if (image->version == 1)
     {
         if (size < sizeof(Image_1) + image->encode_size)

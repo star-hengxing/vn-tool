@@ -50,13 +50,13 @@ public:
     Owned<std::string_view[]> entry_names;
 
 public:
-    static File read(std::string_view filename);
+    static File read(const std::string_view filename);
 
-    static bool is_arc(const Header* header) noexcept;
+    static bool is_arc(const Header& header) noexcept;
 
     Data find(usize entry_id) const noexcept;
 
-    Owned<u8> read(const Image_1* image, usize size) const noexcept;
+    Owned<u8> read(const Image_1& image, usize size) const noexcept;
 };
 
 NAMESPACE_END(BGI)
