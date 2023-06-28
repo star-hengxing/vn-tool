@@ -24,8 +24,7 @@ rule("module.component")
         if is_mode("debug") then
             target:set("kind", "shared")
             if target:is_plat("windows") then
-                import("core.project.rule")
-                local rule = rule.rule("utils.symbols.export_all")
+                local rule = import("core.project.rule").rule("utils.symbols.export_all")
                 target:rule_add(rule)
                 target:extraconf_set("rules", "utils.symbols.export_all", {export_classes = true})
             end
