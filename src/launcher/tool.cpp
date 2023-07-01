@@ -61,38 +61,44 @@ void handle(unsafe::buffer_view<Program> programs) noexcept
     }
 }
 
-std::wstring string2wstring(const std::string_view str) noexcept
+std::wstring u8string2wstring(const std::u8string_view str) noexcept
 {
     if (str.empty())
         return {};
 
-    auto const size = ::MultiByteToWideChar(CP_ACP, 0, str.data(), static_cast<int>(str.size()), nullptr, 0);
+    auto const size = ::MultiByteToWideChar(
+        CP_UTF8, 0, reinterpret_cast<LPCCH>(str.data()),
+        static_cast<int>(str.size()), nullptr, 0);
     if (size == 0)
     {
         return {};
     }
 
     auto ret = std::wstring(size, 0);
-    if (::MultiByteToWideChar(CP_ACP, 0, str.data(), static_cast<int>(str.size()), ret.data(), size) == 0)
+    if (::MultiByteToWideChar(
+        CP_UTF8, 0, reinterpret_cast<LPCCH>(str.data()),
+        static_cast<int>(str.size()), ret.data(), size) == 0)
     {
         return {};
     }
     return ret;
 }
 
-std::string wstring2string(const std::wstring_view str) noexcept
+std::u8string wstring2u8string(const std::wstring_view str) noexcept
 {
     if (str.empty())
         return {};
 
-    auto const size = ::WideCharToMultiByte(CP_ACP, 0, str.data(), static_cast<int>(str.size()), nullptr, 0, nullptr, nullptr);
+    auto const size = ::WideCharToMultiByte(CP_UTF8, 0, str.data(), static_cast<int>(str.size()), nullptr, 0, nullptr, nullptr);
     if (size == 0)
     {
         return {};
     }
 
-    auto ret = std::string(size, 0);
-    if (::WideCharToMultiByte(CP_ACP, 0, str.data(), static_cast<int>(str.size()), ret.data(), size, nullptr, nullptr) == 0)
+    auto ret = std::u8string(size, 0);
+    if (::WideCharToMultiByte(
+        CP_UTF8, 0, str.data(), static_cast<int>(str.size()),
+        reinterpret_cast<LPSTR>(ret.data()), size, nullptr, nullptr) == 0)
     {
         return {};
     }

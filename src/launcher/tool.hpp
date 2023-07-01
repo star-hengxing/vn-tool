@@ -13,8 +13,8 @@ struct fixed_buffer
     usize size;
 };
 
-std::wstring string2wstring(const std::string_view str) noexcept;
-std::string  wstring2string(const std::wstring_view str) noexcept;
+std::wstring u8string2wstring(const std::u8string_view str) noexcept;
+std::u8string wstring2u8string(const std::wstring_view str) noexcept;
 
 void handle(unsafe::buffer_view<Program> programs) noexcept;
 

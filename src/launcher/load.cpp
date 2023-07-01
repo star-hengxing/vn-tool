@@ -29,10 +29,10 @@ fixed_buffer<Program> read(const std::string_view filename) noexcept
             {
                 auto& cur = data[i];
                 auto const node = toml["programs"][i];
-                std::optional<std::string_view> path_view = node["path"].value<std::string_view>();
+                std::optional path_view = node["path"].value<std::u8string_view>();
 
                 auto const path = fs::path{path_view.value()}.make_preferred();
-                cur.path = ::string2wstring(path.string());
+                cur.path = ::u8string2wstring(path.u8string());
                 cur.is_valid_path = fs::exists(path);
                 cur.start_count = node["start_count"].value<usize>().value();
                 cur.run_times = node["run_times"].value<usize>().value();
@@ -74,7 +74,7 @@ void write(const std::string_view filename, const unsafe::buffer_view<Program> p
     for (auto proc : programs)
     {
         toml::table cur;
-        cur.emplace("path", ::wstring2string(proc.path));
+        cur.emplace("path", ::wstring2u8string(proc.path));
         // cur.emplace("is_valid_path", proc.is_valid_path);
         cur.emplace("start_count", static_cast<isize>(proc.start_count));
         auto run_times = static_cast<isize>(proc.run_times);
