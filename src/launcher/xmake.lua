@@ -3,7 +3,7 @@ target("launcher.gui")
     add_rules("qt.moc") -- preload for header files
 
     add_files("gui/*.cpp", "gui/*.hpp")
-    add_includedirs(path.join(os.scriptdir()))
+    add_includedirs(os.scriptdir())
     add_headerfiles("gui/*.hpp")
 
     add_frameworks("QtGui", "QtWidgets")
@@ -18,15 +18,16 @@ target("launcher.gui")
 
 target("launcher")
     add_rules("module.program")
-    add_rules("qt.widgetapp")
+    -- add_rules("qt.widgetapp")
 
     add_files("*.cpp")
     add_headerfiles("*.hpp")
 
-    if is_mode("debug") then
-        -- print to console
-        add_ldflags("/subsystem:console")
-    end
+    -- if is_mode("debug") then
+    --     -- print to console
+    --     add_ldflags("/subsystem:console")
+    -- end
 
-    add_deps("platform", "launcher.gui")
-    add_packages("toml++")
+    add_deps("platform")
+    -- add_deps("platform", "launcher.gui")
+    add_packages("fast_io", "toml++")

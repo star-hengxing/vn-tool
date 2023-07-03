@@ -7,7 +7,7 @@ inline Monitor monitor;
 
 void sigint_callback(int signum) noexcept
 {
-    monitor.write_programs({});
+    monitor.write_programs();
     std::exit(signum);
 }
 

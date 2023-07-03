@@ -25,8 +25,8 @@ public:
 
     [[nodiscard]]
     bool read_programs(const std::string_view filename) noexcept;
-
-    void write_programs(const std::string_view filename) const noexcept;
+    // if filename empty, use config_filename
+    void write_programs(const std::string_view filename = {}) const noexcept;
 
     void run() noexcept;
 };

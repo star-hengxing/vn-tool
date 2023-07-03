@@ -62,7 +62,7 @@ void Monitor::run() noexcept
         if (seconds == save_time)
         {
             seconds = 0;
-            this->write_programs({});
+            this->write_programs();
         }
         else
         {
