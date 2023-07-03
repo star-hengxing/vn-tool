@@ -8,37 +8,39 @@
 #include <toml++/toml.h>
 
 #include <base/range.hpp>
-#include "tool.hpp"
+#include <platform/string.hpp>
+#include "Monitor.hpp"
 
 namespace fs = std::filesystem;
 
-fixed_buffer<Program> read(const std::string_view filename) noexcept
+bool Monitor::read_programs(const std::string_view filename) noexcept
 {
     try
     {
         auto const file = fast_io::native_file_loader{filename};
         toml::table toml = toml::parse({file.data(), file.size()});
         toml::array* arr = toml.get_as<toml::array>("programs");
-        if (arr)
-        {
-            auto const size = arr->size();
-            auto programs = fixed_buffer<Program>{Owned<Program[]>::make_uninitialize(size), size};
 
-            auto const data = programs.data.get();
+        auto const size = arr->size();
+        if (arr && size != 0)
+        {
+            programs.resize(size);
+
             for (auto i : range(size))
             {
-                auto& cur = data[i];
+                auto& cur = programs[i];
                 auto const node = toml["programs"][i];
                 std::optional path_view = node["path"].value<std::u8string_view>();
 
                 auto const path = fs::path{path_view.value()}.make_preferred();
-                cur.path = ::u8string2wstring(path.u8string());
+                cur.path = ::u8string_to_wstring(path.u8string());
                 cur.is_valid_path = fs::exists(path);
                 cur.start_count = node["start_count"].value<usize>().value();
                 cur.run_times = node["run_times"].value<usize>().value();
             }
 
-            return programs;
+            this->config_filename = filename;
+            return true;
         }
     }
     catch (fast_io::error& err)
@@ -59,10 +61,10 @@ fixed_buffer<Program> read(const std::string_view filename) noexcept
         perr("Invalid toml file\n");
     }
 
-    return {nullptr, 0};
+    return false;
 }
 
-void write(const std::string_view filename, const unsafe::buffer_view<Program> programs) noexcept
+void Monitor::write_programs(const std::string_view filename) const noexcept
 {
     if (programs.empty())
         return;
@@ -74,7 +76,7 @@ void write(const std::string_view filename, const unsafe::buffer_view<Program> p
     for (auto proc : programs)
     {
         toml::table cur;
-        cur.emplace("path", ::wstring2u8string(proc.path));
+        cur.emplace("path", ::wstring_to_u8string(proc.path));
         // cur.emplace("is_valid_path", proc.is_valid_path);
         cur.emplace("start_count", static_cast<isize>(proc.start_count));
         auto run_times = static_cast<isize>(proc.run_times);
@@ -87,6 +89,17 @@ void write(const std::string_view filename, const unsafe::buffer_view<Program> p
         vec->push_back(std::move(cur));
     }
 
-    auto out = std::ofstream{filename.data()};
-    out << toml;
+    std::ofstream out;
+    if (!filename.empty())
+    {
+        out.open(filename.data());
+        out << toml;
+        return;
+    }
+
+    if (!config_filename.empty())
+    {
+        out.open(config_filename.c_str());
+        out << toml;
+    }
 }
