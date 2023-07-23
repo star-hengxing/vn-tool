@@ -72,3 +72,44 @@ void Monitor::run() noexcept
         os::sleep(sleep_time);
     }
 }
+
+bool Monitor::exec(usize index) noexcept
+{
+    if (index >= programs.size())
+        return false;
+
+    auto& program = programs[index];
+    if (program.is_empty() || program.is_run())
+        return false;
+
+    ::PROCESS_INFORMATION process_info{};
+    ::STARTUPINFO startup_info
+    {
+        .cb = sizeof(::STARTUPINFO)
+    };
+
+    BOOL result = ::CreateProcessW(
+        program.path.c_str(), nullptr,
+        nullptr, nullptr,
+        FALSE, 0,
+        nullptr, nullptr,
+        &startup_info, &process_info
+    );
+
+    auto const ret = (result == TRUE);
+    if (ret)
+    {
+        program.pid = process_info.dwProcessId;
+        program.start_count += 1;
+    }
+
+    return ret;
+}
+
+void Monitor::remove(usize index) noexcept
+{
+    if (index < programs.size())
+    {
+        programs.erase(programs.cbegin() + index);
+    }
+}

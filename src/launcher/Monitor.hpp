@@ -29,4 +29,8 @@ public:
     void write_programs(const std::string_view filename = {}) const noexcept;
 
     void run() noexcept;
+
+    bool exec(usize index) noexcept;
+
+    void remove(usize index) noexcept;
 };
