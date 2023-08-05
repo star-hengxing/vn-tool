@@ -1,15 +1,3 @@
-rule("debug.asan")
-    on_load(function (target)
-        target:add("cxflags", "-fsanitize=address")
-        target:add("ldflags", "-fsanitize=address")
-
-        local msvc = target:toolchain("msvc")
-        if target:kind() == "binary" and msvc then
-            local cl = assert(import("lib.detect.find_tool")("cl", {envs = msvc:runenvs()}), "cl not found!")
-            target:add("runenvs", "Path", path.directory(cl.program))
-        end
-    end)
-
 rule("module.program")
     on_load(function (target)
         target:set("kind", "binary")
@@ -19,12 +7,31 @@ rule("module.program")
         end
     end)
 
+    after_build(function (target)
+        local enabled = target:extraconf("rules", "module.program", "upx")
+        if (not enabled) or (not is_mode("release")) then
+            return
+        end
+
+        import("core.project.depend")
+
+        local targetfile = target:targetfile()
+        depend.on_changed(function ()
+            local file = path.join("build", path.filename(targetfile))
+            local upx = assert(import("lib.detect.find_tool")("upx"), "upx not found!")
+
+            os.tryrm(file)
+            os.execv(upx.program, {targetfile, "-o", file})
+        end, {files = targetfile})
+    end)
+
 rule("module.component")
     on_load(function (target)
         if is_mode("debug") then
             target:set("kind", "shared")
             if target:is_plat("windows") then
-                local rule = import("core.project.rule").rule("utils.symbols.export_all")
+                import("core.project.rule")
+                local rule = rule.rule("utils.symbols.export_all")
                 target:rule_add(rule)
                 target:extraconf_set("rules", "utils.symbols.export_all", {export_classes = true})
             end
@@ -43,7 +50,7 @@ rule("module.test")
         end
 
         target:set("policy", "build.warning", true)
-        target:set("rundir", "$(projectdir)")
+        target:set("rundir", os.projectdir())
         target:set("group", "test")
         target:add("packages", "boost_ut")
     end)

@@ -4,3 +4,5 @@ includes("package.lua")
 includes("option.lua")
 -- project module config
 includes("rules/module.lua")
+-- project debug tool
+includes("rules/debug.lua")

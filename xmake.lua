@@ -6,28 +6,22 @@ set_xmakever("2.7.9")
 
 set_allowedplats("windows")
 
-set_warnings("all")
 set_languages("c++20")
 
+set_warnings("all")
 add_rules("mode.debug", "mode.release")
 
 if is_mode("debug") then
-    add_rules("debug.asan")
     set_policy("build.warning", true)
-    add_requireconfs("*", {configs = {shared = true}})
+elseif is_mode("release") then
+    set_optimize("smallest")
 end
 
 if is_plat("windows") then
-    if is_mode("debug") then
-        set_runtimes("MDd")
-    else
-        set_runtimes("MT")
-    end
-end
--- support utf-8 on msvc
-if is_host("windows") then
+    set_runtimes(is_mode("debug") and "MDd" or "MT")
+    -- support utf-8 on msvc
     add_defines("UNICODE", "_UNICODE")
-    add_cxflags("/utf-8", {tools = "cl"})
+    add_cxflags("/utf-8", "/permissive-", {tools = "cl"})
 end
 
 includes("src")
